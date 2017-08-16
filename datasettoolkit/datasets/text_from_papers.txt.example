@@ -1,0 +1,627 @@
+Actively Learning what makes a Discrete Sequence Valid
+David Janz * 1 Jos van der Westhuizen * 1 Jose Miguel Hern ´ andez-Lobato ´
+* 1
+Abstract
+Deep learning techniques have been hugely successful
+for traditional supervised and unsupervised
+machine learning problems. In large part,
+these techniques solve continuous optimization
+problems. Recently however, discrete generative
+deep learning models have been successfully
+used to efficiently search high-dimensional discrete
+spaces. These methods work by representing
+discrete objects as sequences, for which powerful
+sequence-based deep models can be employed.
+Unfortunately, these techniques are significantly
+hindered by the fact that these generative
+models often produce invalid sequences. As
+a step towards solving this problem, we propose
+to learn a deep recurrent validator model. Given
+a partial sequence, our model learns the probability
+of that sequence occurring as the beginning
+of a full valid sequence. Thus this identifies valid
+versus invalid sequences and crucially it also provides
+insight about how individual sequence elements
+influence the validity of discrete objects.
+To learn this model we propose an approach inspired
+by seminal work in Bayesian active learning.
+On a synthetic dataset, we demonstrate the
+ability of our model to distinguish valid and invalid
+sequences. We believe this is a key step
+toward learning generative models that faithfully
+produce valid discrete objects.
+1. Introduction and Related Work
+Generative models have seen many fascinating developments
+in recent years such as the ability to produce realistic
+images from noise (Radford et al., 2015) and create
+artwork (Gatys et al., 2016). One of the most exciting research
+directions in generative modeling is using such models
+to efficiently search high-dimensional discrete spaces
+*Equal contribution 1University of Cambridge, UK. Correspondence
+to: David Janz <dj343@cam.ac.uk>, Jos van der
+Westhuizen <jv365@cam.ac.uk>.
+Principled Approaches to Deep Learning, International Conference
+on Machine Learning, Sydney, Australia, 2017. Copyright
+2017 by the author(s).
+(G ´omez-Bombarelli et al., 2016b; Kusner et al., 2017). Indeed,
+discrete search is at the heart of problems in drug discovery
+(G ´omez-Bombarelli et al., 2016a), natural language
+processing (Bowman et al., 2016; Guimaraes et al., 2017),
+and symbolic regression (Kusner et al., 2017).
+Current methods for attacking these discrete search problems
+work by ‘lifting’ the search from discrete space to
+continuous space, via an autoencoder (Rumelhart et al.,
+1985). Specifically, an autoencoder jointly learns two mappings:
+1) a mapping from discrete space to continuous
+space called an encoder; and 2) a reverse mapping from
+continuous space back to discrete space called a decoder.
+These mappings are learned so that if we map a discrete
+object to a continuous one via the encoder, then map it
+back via the decoder, we reconstruct the original object.
+The hope is that, once the autoencoder is fully trained, the
+continuous space (often called the ‘latent’ space) acts as
+proxy for the discrete space. If this holds, we can use the
+geometry of the continuous space to improve search using
+(Euclidean) distance measures and gradients, among many
+other things. G ´omez-Bombarelli et al. (2016b) showed that
+is possible to use this technique to search for promising
+drug molecules.
+Unfortunately, these methods are severely hindered by
+the fact that the decoder often produces invalid discrete
+objects. This happens because it is diffi-
+cult to enforce valid syntax and semantics in the latent
+and discrete space. Powerful sequential models
+(e.g., LSTMs (Hochreiter & Schmidhuber, 1997) GRUs
+(Cho et al., 2014), DCNNs (Kalchbrenner et al., 2014)) can
+exploit the relationship between parts of the discrete objects
+(e.g., comparing similar sequences of atoms in different
+molecules). When employing these models as encoders
+and decoders, generation of invalid sequences is still possible,
+and currently this happens frequently (see Table 6 in
+the Supplementary Material of Kusner et al. (2017)). A recent
+method (Kusner et al., 2017) aimed to fix this by using
+a grammar to rule out generating certain invalid sequences.
+However, the grammar only describes syntactic constraints
+and cannot enforce semantic constraints. Therefore, certain
+invalid sequences can still be generated using that approach.
+In this work-in-progress paper, we propose a method for
+Collaborative Filtering using Denoising Auto-Encoders for
+Market Basket Data
+Andres G. Abad and Luis I. Reyes-Castro
+Escuela Superior Politecnica del Litoral (ESPOL)
+Guayaquil-Ecuador
+Abstract
+Recommender systems (RS) help users navigate large sets of items in the search for “interesting” ones. One approach
+to RS is Collaborative Filtering (CF), which is based on the idea that similar users are interested in similar items. Most
+model-based approaches to CF seek to train a machine-learning/data-mining model based on sparse data; the model is
+then used to provide recommendations. While most of the proposed approaches are effective for small-size situations,
+the combinatorial nature of the problem makes it impractical for medium-to-large instances. In this work we present a
+novel approach to CF that works by training a Denoising Auto-Encoder (DAE) on corrupted baskets, i.e., baskets from
+which one or more items have been removed. The DAE is then forced to learn to reconstruct the original basket given
+its corrupted input. Due to recent advancements in optimization and other technologies for training neural-network
+models (such as DAE), the proposed method results in a scalable and practical approach to CF. The contribution of
+this work is twofold: (1) to identify missing items in observed baskets and, thus, directly providing a CF model; and,
+(2) to construct a generative model of baskets which may be used, for instance, in simulation analysis or as part of a
+more complex analytical method.
+Keywords
+Recommender systems, collaborative filtering, denoising auto-encoders, market basket data, retail firms
+1. Introduction
+Recommender systems (RS) help users navigate large sets of items in the search for “interesting” ones. In retail
+firms, RS work by providing recommendations based on the analysis of sparse transactional data: market basket data.
+On-line retailers were one of the first sectors to adopt RS; its application was popularized by Amazon’s “Customers
+who bought this item also bought” feature [1]. In bricks-and-mortar stores, RS have been successfully applied to,
+for instance, designing up-selling strategies through customized discount coupons and targeted marketing campaigns.
+One approach to RS is Collaborative Filtering (CF), which is based on the idea that similar users are interested in
+similar items.
+In the model-based approach to CF, data is used to train a machine-learning/data-mining model. Supervised-learning
+models proposed for CF include regression models, as in [2] where a regression model was proposed for predicting
+user’s ratings; and classification models, as in [3] where an inductive approach for classification was applied. In [4],
+a logistic regression model together with a PCA for dimensionality reduction were used. Other supervised-learning
+approaches proposed for CF include bayesian classifiers [5] and belief networks [6].
+Unsupervised-learning models proposed for CF include clustering techniques, such as in [7] where k-means clustering
+was used. In [8] the CF problem was addressed as a sequence of decisions, where the optimal policy was learned
+using a Markov Decision Process (MDP); in [9] Latent Semantic Analysis was used for CF, reporting higher accuracy
+and constant time prediction as two of the main advantages of their method. Another unsupervised-learning proposed
+approach to CF is to estimate the frequency of occurrence of combinations of items in the search of interesting
+association rules [10]. A direct application of this type of analysis is the quantification of the complementary and
+supplementary relationship between items and their use for CF.
+From a generative-model perspective, one may wish to learn the binary multivariate distribution of variables (representing
+the presence of items in each basket) to arrive to recommendations by performing probabilistic inference. In
+Encoding Multi-Resolution Brain Networks Using
+Unsupervised Deep Learning
+Arash Rahnama∗
+, Abdullah Alchihabi†
+, Vijay Gupta∗
+, Panos J. Antsaklis,∗
+Fatos T. Yarman Vural†
+∗ Department of Electrical Engineering
+University of Notre Dame, Notre Dame, IN 46556, USA
+Email: {arahnama, vgupta2, antsaklis.1} @nd.edu.
+† Department of Computer Engineering, Middle East Technical University, 06800 Ankara, Turkey
+Email: abdullah.alchihabi@metu.edu.tr, vural@ceng.metu.edu.tr
+Abstract—The main goal of this study is to extract a set
+of brain networks in multiple time-resolutions to analyze the
+connectivity patterns among the anatomic regions for a given
+cognitive task. We suggest a deep architecture which learns the
+natural groupings of the connectivity patterns of human brain
+in multiple time-resolutions. The suggested architecture is tested
+on task data set of Human Connectome Project (HCP) where
+we extract multi-resolution networks, each of which corresponds
+to a cognitive task. At the first level of this architecture, we
+decompose the fMRI signal into multiple sub-bands using wavelet
+decompositions. At the second level, for each sub-band, we
+estimate a brain network extracted from short time windows
+of the fMRI signal. At the third level, we feed the adjacency
+matrices of each mesh network at each time-resolution into an
+unsupervised deep learning algorithm, namely, a Stacked Denoising
+Auto-Encoder (SDAE). The outputs of the SDAE provide
+a compact connectivity representation for each time window at
+each sub-band of the fMRI signal. We concatenate the learned
+representations of all sub-bands at each window and cluster them
+by a hierarchical algorithm to find the natural groupings among
+the windows. We observe that each cluster represents a cognitive
+task with a performance of 93% Rand Index and 71% Adjusted
+Rand Index. We visualize the mean values and the precisions of
+the networks at each component of the cluster mixture. The mean
+brain networks at cluster centers show the variations among
+cognitive tasks and the precision of each cluster shows the within
+cluster variability of networks, across the subjects.
+Index Terms—Deep Learning, Stacked Autoencoders, Brain
+Decoding, Mesh Networks, Connectivity Patterns, Clustering.
+I. INTRODUCTION
+The data produced by functional Magnetic Resonance Imaging
+(fMRI) is high-dimensional and sometimes not suitable
+for analyzing the cognitive states [1]. Learning efficient lowdimensional
+features from high-dimensional complex input
+spaces is crucial for the decoding of cognitive processes.
+In this paper, we explore deep learning algorithms in order
+to i) find a compact representation of connectivity patterns
+embedded in fMRI signals, ii) detect natural groupings of
+these patterns and, iii) use these natural groups to extract brain
+networks to represent cognitive tasks.
+Our framework is built upon our previous work in the area
+[2], where we decompose fMRI signals into various frequency
+sub-bands using their wavelet transforms. We further utilize
+the signals at different sub-bands to form multi-resolution
+brain networks. Recent studies have shown that brain networks
+formed by the correlation of voxel pairs’ in fMRI signals
+provide more information for brain decoding compared to
+the temporal information of single voxels [3], [4]. Moreover,
+there has been a shift in the literature toward brain decoding
+algorithms that are based on the connectivity patterns in the
+brain motivated by the belief that these patterns provide more
+information about cognitive tasks than the isolated behavior
+of individual anatomic regions [5]–[7].
+Contrary to the methods suggested in [3], [4] where supervised
+learning algorithms are employed for brain decoding,
+in this paper, we investigate the common groupings in HCP
+task data set to find out if these natural groups correspond to
+the cognitive tasks. This approach enables us to find shared
+network representations of a cognitive task together with its
+variations across the subjects. Additionally, multi-resolution
+representation of the fMRI signals enables us to observe the
+variations of networks among different frequency sub-bands.
+After constructing the brain networks representing the connectivity
+patterns among the anatomic regions of the brain at
+each sub-level, a Stacked De-noising Auto-Encoder (SDAE)
+algorithm is employed to learn shared connectivity features
+associated with a task based on the estimated mesh networks
+at different sub-bands. We concatenate the learned connectivity
+patterns from several wavelet sub-bands and utilize them in a
+hierarchical clustering algorithm with a distance matrix based
+on their correlations. The main reason behind concatenation
+of the feature matrices is that the detected patterns in the brain
+at different frequencies provide complementary information in
+regard to the overall cognitive state of the brain.
+Our results show that the mesh network representation
+of cognitive tasks is superior compared to fMRI time-series
+representation. We observe that SDAE successfully learns a set
+of connectivity patterns which provide an increased clustering
+performance. The performances are further improved by fusing
+the learned representations from multiple time-resolutions.
+This shows that the modeling of the connectivity of brain in
+multiple sub-bands of the fMRI signal leads to diverse mesh
+networks carrying complementary information for representing
+the cognitive tasks. The high rand index 93% obtained at
+the output of the clustering algorithm proves the existence
+Database of Parliamentary Speeches in Ireland,
+1919–2013∗
+Alexander Herzog
+Clemson University
+aherzog@clemson.edu
+Slava J. Mikhaylov
+University of Essex
+s.mikhaylov@essex.ac.uk
+August 16, 2017
+Abstract
+We present a database of parliamentary debates that contains the complete record
+of parliamentary speeches from Dail ´ Eireann, the lower house and principal chamber of ´
+the Irish parliament, from 1919 to 2013. In addition, the database contains background
+information on all TDs (Teachta Dala, members of parliament), such as their party ´
+affiliations, constituencies and office positions. The current version of the database
+includes close to 4.5 million speeches from 1,178 TDs. The speeches were downloaded
+from the official parliament website and further processed and parsed with a Python
+script. Background information on TDs was collected from the member database of
+the parliament website. Data on cabinet positions (ministers and junior ministers) was
+collected from the official website of the government. A record linkage algorithm and
+human coders were used to match TDs and ministers.
+Key Words: Parliamentary debates, Dail ´ Eireann
+1 Introduction
+Almost all political decisions and political opinions are, in one way or another, expressed in
+written or spoken texts. Great leaders in history become famous for their ability to motivate
+the masses with their speeches; parties publish policy programmes before elections in order
+to provide information about their policy objectives; parliamentary decisions are discussed
+and deliberated on the floor in order to exchange opinions; members of the executive in most
+political systems are legally obliged to provide written or verbal answers to questions from
+legislators; and citizens express their opinions about political events on internet blogs or in
+public online chats. Political texts and speeches are everywhere that people express their
+political opinions and preferences.
+It is not until recently that social scientists have discovered the potential of analyzing political
+texts to test theories of political behavior. One reason is that systematically processing
+large quantities of textual data to retrieve information is technically challenging. Computational
+advances in natural language processing have greatly facilitated this task. Adaptation
+of such techniques in social science – for example, Wordscore (Benoit and Laver,
+2003; Laver, Benoit and Garry, 2003) or Wordfish (Slapin and Proksch, 2008) – now enable
+researchers to systematically compare documents with one another and extract relevant
+information from them. Applied to party manifestos, for which most of these techniques
+have been developed, these methods can be used to evaluate the similarity or dissimilarity
+between manifestos, which can then be used to derive estimates about parties’ policy
+preferences and their ideological distance to each other.
+One area of research that increasingly makes use of quantitative text methods are studies
+of legislative behavior and parliaments (Giannetti and Laver, 2005; Laver and Benoit,
+The Trimmed Lasso: Sparsity and Robustness
+Dimitris Bertsimas, Martin S. Copenhaver, and Rahul Mazumder∗
+August 15, 2017
+Abstract
+Nonconvex penalty methods for sparse modeling in linear regression have been a topic of
+fervent interest in recent years. Herein, we study a family of nonconvex penalty functions that
+we call the trimmed Lasso and that offers exact control over the desired level of sparsity of
+estimators. We analyze its structural properties and in doing so show the following:
+1. Drawing parallels between robust statistics and robust optimization, we show that the
+trimmed-Lasso-regularized least squares problem can be viewed as a generalized form of
+total least squares under a specific model of uncertainty. In contrast, this same model
+of uncertainty, viewed instead through a robust optimization lens, leads to the convex
+SLOPE (or OWL) penalty.
+2. Further, in relating the trimmed Lasso to commonly used sparsity-inducing penalty functions,
+we provide a succinct characterization of the connection between trimmed-Lassolike
+approaches and penalty functions that are coordinate-wise separable, showing that
+the trimmed penalties subsume existing coordinate-wise separable penalties, with strict
+containment in general.
+3. Finally, we describe a variety of exact and heuristic algorithms, both existing and new,
+for trimmed Lasso regularized estimation problems. We include a comparison between the
+different approaches and an accompanying implementation of the algorithms.
+1 Introduction
+Sparse modeling in linear regression has been a topic of fervent interest in recent years [23, 42].
+This interest has taken several forms, from substantial developments in the theory of the Lasso to
+advances in algorithms for convex optimization. Throughout there has been a strong emphasis on
+the increasingly high-dimensional nature of linear regression problems; in such problems, where the
+number of variables p can vastly exceed the number of observations n, sparse modeling techniques
+are critical for performing inference.
+Context
+One of the fundamental approaches to sparse modeling in the usual linear regression model of
+y = Xβ + , with y ∈ R
+n and X ∈ R
+n×p
+, is the best subset selection [57] problem:
+Theoretical Foundation of Co-Training and
+Disagreement-Based Algorithms
+Wei Wang, Zhi-Hua Zhou∗
+National Key Laboratory for Novel Software Technology,
+Nanjing University, Nanjing 210023, China
+Abstract
+Disagreement-based approaches generate multiple classifiers and exploit the disagreement
+among them with unlabeled data to improve learning performance.
+Co-training is a representative paradigm of them, which trains two classifiers
+separately on two sufficient and redundant views; while for the applications
+where there is only one view, several successful variants of co-training with
+two different classifiers on single-view data instead of two views have been proposed.
+For these disagreement-based approaches, there are several important
+issues which still are unsolved, in this article we present theoretical analyses to
+address these issues, which provides a theoretical foundation of co-training and
+disagreement-based approaches.
+Keywords: machine learning, semi-supervised learning, disagreement-based
+learning, co-training, multi-view classification, combination
+1. Introduction
+Learning from labeled training data is well-established in traditional machine
+learning, but labeling the data is time-consuming, sometimes may be very
+expensive since it requires human efforts. In many practical applications, unlabeled
+data can be obtained abundantly and cheaply. For example, in the task of
+Graph Classification via Deep Learning with Virtual Nodes
+Trang Pham\
+, Truyen Tran\
+, Hoa Dam[
+, Svetha Venkatesh\
+\Centre for Pattern Recognition and Data Analytics
+Deakin University, Geelong, Australia
+{phtra, truyen.tran, svetha.venkatesh}@deakin.edu.au;
+[School of Computing and Information Technology
+University of Wollongong, Australia
+hoa@uow.edu.au
+Abstract
+Learning representation for graph classification
+turns a variable-size graph into a fixed-size vector
+(or matrix). Such a representation works nicely with
+algebraic manipulations. Here we introduce a simple
+method to augment an attributed graph with a
+virtual node that is bidirectionally connected to all
+existing nodes. The virtual node represents the latent
+aspects of the graph, which are not immediately
+available from the attributes and local connectivity
+structures. The expanded graph is then put through
+any node representation method. The representation
+of the virtual node is then the representation of the
+entire graph. In this paper, we use the recently introduced
+Column Network for the expanded graph,
+resulting in a new end-to-end graph classification
+model dubbed Virtual Column Network (VCN). The
+model is validated on two tasks: (i) predicting bioactivity
+of chemical compounds, and (ii) finding
+software vulnerability from source code. Results
+demonstrate that VCN is competitive against wellestablished
+rivals.
+1 Intro
+Deep learning has achieved record-breaking successes in domains
+with regular grid (e.g., via CNN) or chain-like (e.g.,
+via RNN) structures [LeCun et al., 2015]. However, many, if
+not most, real-world structured problems are best modelled
+using graphs with irregular connectivity. These include, for
+example, chemical compounds, proteins, RNAs, function calls
+in software, brain activity networks, and social networks. A
+canonical task is graph classification, that is, assigning class
+labels to a graph instance (e.g., chemical compound as its
+activity against cancer cells).
+We study a generic class known as attributed graphs whose
+nodes can have attributes, and edges can be multi-typed and
+directed. We aim to efficiently learn distributed representation
+of graph, that is, a map that turns variable-size graphs into
+fixed-size vectors or matrices. Such a representation would
+benefit greatly from a powerful pool of data manipulation
+tools. This rules out traditional approaches such as graph
+kernels [Vishwanathan et al., 2010] and graph feature engineering
+[Choetkiertikul et al., 2017], which could be either
+computation or labor intensive.
+Several recent neural networks defined on graphs, such as
+Graph Neural Network [Scarselli et al., 2009], diffusion-CNN
+[Atwood and Towsley, 2016], and Column Network [Pham
+et al., 2017a], start with node representations by taking into
+account of the neighborhood structures, typically through convolution
+and/or recurrent operations. Node representations
+can then be aggregated into graph representation. It is akin
+to representing a document1 by first embedding words into
+vectors (e.g., through word2vec) then combining them (e.g.,
+by weighted averaging using attention). We conjecture that a
+better way is to learn graph representation directly and simultaneously
+with node representation2
+.
+Our main idea is to augment the original graph with a virtual
+node to represent the latent aspects of the graph. The virtual
+node is bidirectionally connected to all existing real nodes.
+The virtual node assumes either empty attributes or auxiliary
+information which are not readily available in the original
+graph. The augmented-graph is passed through the existing
+graph neural networks for computing node representation.
+The graph representation is then a vector representation of the
+virtual node.
+For concreteness, we materialize the idea of virtual node
+using Column Network [Pham et al., 2017a], an architecture
+for node classification. With a differentiable classifier (e.g.,
+a feedforward net), the network is an end-to-end solution for
+graph classification, which we name Virtual Column Network
+(VCN). We validate the VCN on two applications: predicting
+bio-activity of chemical compounds, and assessing vulnerability
+in software code and the results are promising.
+2 Models
+In this section we present Virtual Column Network (VCN), a
+realization of the idea of virtual node for graph classification
+using a recent node representation method known as Column
+Network (CLN) [Pham et al., 2017a]. VCN is applicable to
+graphs of multi-typed edges and attributed nodes.
+1A document can be considered as a linear graph of words.
+2This is akin to the spirit of paragraph2vec [Le and Mikolov
+Fine-Gray Competing Risks Model with High-Dimensional
+Covariates: Estimation and Inference
+Jue Hou1
+, Jelena Bradic1 and Ronghui Xu1,2
+1Department of Mathematics,
+2Department of Family Medicine and Public Health,
+University of California San Diego, CA 92093
+Abstract
+The purpose of this paper is to construct confidence intervals for the regression coefficients in the
+Fine-Gray model for competing risks data with random censoring, where the number of covariates
+can be larger than the sample size. Despite strong motivation from biostatistics applications, highdimensional
+Fine-Gray model has attracted relatively little attention among the methodological or
+theoretical literatures. We fill in this blank by proposing first a consistent regularized estimator
+and then the confidence intervals based on the one-step bias-correcting estimator. We are able
+to generalize the partial likelihood approach for the Fine-Gray model under random censoring
+despite many technical difficulties. We lay down a methodological and theoretical framework for
+the one-step bias-correcting estimator with the partial likelihood, which does not have independent
+and identically distributed entries. We also handle for our theory the approximation error from
+the inverse probability weighting (IPW), proposing novel concentration results for time dependent
+processes. In addition to the theoretical results and algorithms, we present extensive numerical
+experiments and an application to a study of non-cancer mortality among prostate cancer patients
+using the linked Medicare-SEER data.
+1 Introduction
+In many applications, we want to use data to draw inferences about the effect of a covariate on
+a specific event in the presence of many risks competing for the same event: Examples include
+medical studies about the effect of a medical treatment on health outcomes of chronically ill patients,
+studies of the unemployment duration and transitions to employment and labor market
+programs, or evaluations of environmental determinants of child mortality, and studying internetwork
+competition risk “strategic gridlock,” a study of how firms use alliances to respond to the
+alliance networks of their rivals. Historically, most datasets have been too small to meaningfully
+explore heterogeneity between different risk factors beyond considering cause-specific models only.
+Recently, however, there has been an explosion of experimental data sets where it is potentially
+feasible to develop estimates in full competing risks models.
+High-dimensional regression has attracted increased interest in statistical analysis and has provided
+a useful tool in modern biomedical, ecological, astrophysical or economics data pertaining
+to setting where the number of parameters is greater than the number of samples (see B¨uhlmann
+and Van De Geer (2011) for an overview). Regularized methods (Fan and Li, 2001; Tibshirani,
+1996) provide straightforward interpretation of resulting estimators, while allowing the number of
+covariates to be exponentially larger than the sample size. Considerable research effort has been
+devoted to developing regularized methods to handle various regression settings (Ravikumar et al.,
+2010; Belloni and Chernozhukov, 2011; Obozinski et al., 2011; Meinshausen and B¨uhlmann, 2006;
+Basu and Michailidis, 2015; Cho and Fryzlewicz, 2015) including those for time-to-event data (Sun
+et al. (2014); Bradic et al. (2011); Ga¨ıffas and Guilloux (2012); Johnson (2008); Lemler (2013);
+Bradic and Song (2015); Huang et al. (2006); among others). However, regression has not been
+studied for the competing risks setting, a scenario frequently encountered in practice, with random
+censoring and high-dimensional covariates.
+As an illustration project of how information contained in patients’ electronic medical records
+can be harvested for the purposes of precision medicine, we consider the data set linking the
+Surveillance, Epidemiology and End Results (SEER) Program database of the National Cancer
+Institute with the federal health insurance program Medicare database for prostate cancer patients
+of age 65 or older. When restricted to patients diagnosed between 2004 and 2009 in the SEERMedicare
+database, after excluding additional patients with missing clinical records, we have a
+total of 57,011 patients who have information available on 7 relevant clinical variables (age, PSA,
+Gleason score, AJCC stage, and AJCC stage T, N, M, respectively), 5 demographical variables
+(race, marital status, metro, registry and year of diagnosis), plus 8971 binary insurance claim
+codes. Until December 2013 (end of follow-up for this data) there were a total of 1,247 deaths due
+to cancer, and 5,221 deaths unrelated to cancer. The goal of this paper is to develop methodology
+for the Fine-Gray model with many more covariates than the number of events, which can be
+used to appropriately and flexibly evaluate the impact of risk factors on the non-cancer versus
+cancer mortality, as reflected in these clinical, demographical, and claim codes which indirectly
+describe events that occur in surgical procedures, hospitalization and outpatient activities. This
+understanding will then in turn aid in clinical decision making as to whether pursue aggressive
+cancer-directed therapy in the presence of pre-existing comorbidities.
+There are at least three major challenges for addressing high-dimensional competing risks regression
+under the Fine-Gray model, which directly associates the risk factors with the cumulative
+incidence function of a particular cause. The structure of the score function related to the partial
+likelihood is a rather subtle issue with many of the unobserved factors ruining a simple martin-
+A projection pursuit framework for testing general
+high-dimensional hypothesis
+Yinchu Zhu
+Rady School of Management, University of California, San Diego
+and
+Jelena Bradic ∗
+Department of Mathematics, University of California, San Diego
+May 2, 2017
+Abstract
+This article develops a framework for testing general hypothesis in high-dimensional models
+where the number of variables may far exceed the number of observations. Existing literature has
+considered less than a handful of hypotheses, such as testing individual coordinates of the model
+parameter. However, the problem of testing general and complex hypotheses remains widely open.
+We propose a new inference method developed around the hypothesis adaptive projection pursuit
+framework, which solves the testing problems in the most general case. The proposed inference
+is centered around a new class of estimators defined as l1 projection of the initial guess of the
+unknown onto the space defined by the null. This projection automatically takes into account
+the structure of the null hypothesis and allows us to study formal inference for a number of longstanding
+problems. For example, we can directly conduct inference on the sparsity level of the
+model parameters and the minimum signal strength. This is especially significant given the fact
+that the former is a fundamental condition underlying most of the theoretical development in
+high-dimensional statistics, while the latter is a key condition used to establish variable selection
+properties. Moreover, the proposed method is asymptotically exact and has satisfactory power
+properties for testing very general functionals of the high-dimensional parameters. The simulation
+studies lend further support to our theoretical claims and additionally show excellent finite-sample
+size and power properties of the proposed test.
+1 Introduction
+High-dimensional statistical inference of models in which the number of variables p might be much larger
+than the sample size n (i.e., p  n) has become a fundamental issue in many areas of applications.
+Examples include image analysis, analysis of high-throughput genomic sequences, speech analysis, etc
+where the HDLSS (high-dimensional low sample size with p/n → ∞) data structure is apparent. The
+goal of many empirical analyses is to understand the parameter structure of the model at hand, hence
+developing methodology that is flexible and broad-ranging as far as the hypotheses are concerned, is
+of great practical importance. Our goal is to construct a test that can perform well for a large class of
+high-dimensional null hypothesis.
+In this paper, we consider a general model based on n independent and identically distributed
+observations z1, z2, . . . , zn of a random variable (vector) z with support Z, a loss function l(·, ·) :
+Z × B → R a parameter space B ⊆ R
+p and a true parameter value defined as
+β∗ = arg min
+β∈B
+L(β), (1.1)
+with L(β) = E[l(z, β)]. The above formulation covers many important statistical models; for the
+parametric likelihood models, z is generated from a distribution Pβ with the true value β∗ defined by
+(1.1) with l(z, β) = − log pβ(z), where pβ(·) is the probability density function corresponding to Pβ.
+The main goal of this paper is to fill in the gap in the current high-dimensional literature and
+present a comprehensive methodology for the following testing problem
+H0 : β∗ ∈ B0 vs H1 : β∗ ∈ B / 0, (1.2)
+for a given set B0 ⊂ B. Here, no restrictions, such as convexity or dimensionality, are imposed on
+the set B0. Explicitly, we would like to design a test that is asymptotically exact irrespective of the
+geometry of the set B0.
+This problem can be motivated first as a high-level approach to performing inference in highdimensions
+for complex hypothesis. Since p  n, further assumptions, such is sparsity have been
+naturally exploited. There one assumes that the number of non-zeros of β∗, kβ∗k0, is smaller than n.
+Despite the fact that hypothesis testing problem (1.2) is a difficult problem, it is naturally related to
+a number of important questions.
+Example 1.1 (Testing the sparsity level). Over the past decade, sparsity assumption has become
+two-sample testing in non-sparse
+high-dimensional linear models
+Yinchu Zhu, and Jelena Bradic
+Rady School of Management,
+University of California, San Diego
+La Jolla, California 92093,
+USA
+e-mail: yinchu.zhu@rady.ucsd.edu
+Department of Mathematics,
+University of California, San Diego
+La Jolla, California 92093,
+USA
+e-mail: jbradic@math.ucsd.edu
+Abstract: In analyzing high-dimensional models, sparsity of the model
+parameter is a common but often undesirable assumption. Though different
+methods have been proposed for hypothesis testing under sparsity, no
+systematic theory exists for inference methods that are robust to failure of
+the sparsity assumption. In this paper, we study the following two-sample
+testing problem: given two samples generated by two high-dimensional linear
+models, we aim to test whether the regression coefficients of the two
+linear models are identical. We propose a framework named TIERS (short
+for TestIng Equality of Regression Slopes), which solves the two-sample
+testing problem without making any assumptions on the sparsity of the
+regression parameters. TIERS builds a new model by convolving the two
+samples in such a way that the original hypothesis translates into a new
+moment condition. A self-normalization construction is then developed to
+form a moment test. We provide rigorous theory for the developed framework.
+Under very weak conditions of the feature covariance, we show that
+the accuracy of the proposed test in controlling Type I errors is robust
+both to the lack of sparsity in the features and to the heavy tails in the
+error distribution, even when the sample size is much smaller than the feature
+dimension. Moreover, we discuss minimax optimality and efficiency
+properties of the proposed test. Simulation analysis demonstrates excellent
+finite-sample performance of our test. In deriving the test, we also develop
+tools that are of independent interest. The test is built upon a novel estimator,
+called Auto-aDaptive Dantzig Selector (ADDS), which not only
+automatically chooses an appropriate scale (variance) of the error term but
+also incorporates prior information. To effectively approximate the critical
+value of the test statistic, we develop a novel high-dimensional plug-in approach
+that complements the recent advances in Gaussian approximation
+theory.
+1. Introduction
+High-dimensional data are increasingly encountered in many applications of
+statistics and most prominently in biological and financial research. A common
+feature of the statistical models used to study high-dimensional data is
+ROBUST CONFIDENCE INTERVALS IN
+HIGH-DIMENSIONAL LEFT-CENSORED REGRESSION
+JELENA BRADIC AND JIAQI GUO
+Abstract. This paper develops robust confidence intervals in high-dimensional
+and left-censored regression. Type-I censored regression models are extremely
+common in practice, where a competing event makes the variable of interest
+unobservable. However, techniques developed for entirely observed data do
+not directly apply to the censored observations. In this paper, we develop
+smoothed estimating equations that augment the de-biasing method, such that
+the resulting estimator is adaptive to censoring and is more robust to the misspecification
+of the error distribution. We propose a unified class of robust
+estimators, including Mallow’s, Schweppe’s and Hill-Ryan’s one-step estimator.
+In the ultra-high-dimensional setting, where the dimensionality can grow
+exponentially with the sample size, we show that as long as the preliminary
+estimator converges faster than n
+−1/4
+, the one-step estimator inherits asymptotic
+distribution of fully iterated version. Moreover, we show that the size of
+the residuals of the Bahadur representation matches those of the simple linear
+models, s
+3/4
+(log(p ∨ n))3/4/n1/4 – that is, the effects of censoring asymptotically
+disappear. Simulation studies demonstrate that our method is adaptive to
+the censoring level and asymmetry in the error distribution, and does not lose
+efficiency when the errors are from symmetric distributions. Finally, we apply
+the developed method to a real data set from the MAQC-II repository that is
+related to the HIV-1 study.
+1. Introduction
+Left-censored data is a characteristic of many datasets. In physical science
+applications, observations can be censored due to limit of detection and quantifi-
+cation in the measurements. For example, if a measurement device has a value
+limit on the lower end, the observations is recorded with the minimum value,
+even though the actual result is below the measurement range. In fact, many
+of the HIV studies have to deal with difficulties due to the lower quantification
+and detection limits of viral load assays [30]. In social science studies, censoring
+may be implied in the nonnegative nature or defined through human actions.
+Economic policies such as minimum wage and minimum transaction fee result
+in left-censored data, as quantities below the thresholds will never be observed.
