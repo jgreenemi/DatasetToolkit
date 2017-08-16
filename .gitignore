@@ -6,6 +6,8 @@ target/
 
 # User-specific dirs.
 /datasettoolkit/configs/*.json
-/datasettoolkit/datasets/
+/datasettoolkit/datasets/*.txt
+/datasettoolkit/datasets/*.csv
 
+# Include all .example files for new user guidance.
 !*.example

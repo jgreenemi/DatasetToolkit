@@ -127,7 +127,8 @@ def main():
     ]
     client.writer(multi_rows=multi_rows, filename='debugging.csv')
 
-    client.cleaner(filename='1512.07422.txt')
+    client.cleaner(filename='text_from_papers.txt.example')
+    client.cleaner(filename='text_from_reddit.txt.example')
     client.logger.info('Done.')
 
 if __name__ == '__main__':
