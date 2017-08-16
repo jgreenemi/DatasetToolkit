@@ -1,7 +1,0 @@
-{
-  "max_sentence_length": 59,
-  "output_labels": [
-    "Reddit comment",
-    "Not a Reddit comment"
-  ]
-}

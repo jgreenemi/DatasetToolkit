@@ -1,5 +1,11 @@
+# Jetbrains and environment dirs.
 .idea/
 env/
 target/
-configs/*.json
-datasets/
+
+
+# User-specific dirs.
+/datasettoolkit/configs/*.json
+/datasettoolkit/datasets/
+
+!*.example
