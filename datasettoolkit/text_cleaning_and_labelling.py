@@ -44,13 +44,19 @@ class TextCleaningAndLabellingClient():
             return
 
         except Exception as e:
-            error = '{}'.format(e)
-            self.logger.warning(error)
+            self.logger.error(e)
 
     def writer(self, multi_rows, filename):
         """
-        Given
-        :param msg:
+        Given a list of lists of strings,
+
+        multi_rows looks like:
+
+        multi_rows = [
+            ['First sentence', '1.0'],
+            ['Second sentence', '0.0']
+        ]
+        :param multi_rows:
         :param filename:
         :return:
         """
@@ -74,13 +80,38 @@ class TextCleaningAndLabellingClient():
 
         :return:
         """
-        return
+        try:
+            cleaned_text_filename = '{}.txc'.format(filename.split('.txt')[0])
+
+            fullfilename = os.path.join(self.dataset_path, filename)
+            with open(fullfilename, 'rb') as raw_text_file:
+                # This is not scalable! Reads in whole file rather than piece by piece.
+                cleaned_text_fileraw = str(raw_text_file.read().splitlines()).split(' ')
+
+            while len(cleaned_text_fileraw) > self.max_sentence_length:
+                line = '{}\n'.format(str(cleaned_text_fileraw[:self.max_sentence_length]))
+                del cleaned_text_fileraw[:self.max_sentence_length]
+                with open(os.path.join(self.dataset_path, cleaned_text_filename), 'a') as cleaned_file:
+                    cleaned_file.write(line)
+                self.logger.info('Wrote: {}'.format(line))
+
+            self.logger.info('{} cleaned and written to {}.'.format(filename, cleaned_text_filename))
+            return
+
+        except Exception as e:
+            self.logger.error(e)
 
     def labeler(self, filename):
         """
         For the given .txc file, check if a checkpoint marker exists (.txcc file). If so, start from that line in the file. If not, start from top of file. Ask the user (StdIn) which class this line belongs to. User gives 0, 1, 2, etc. based on the index of the output_labels options, and it is saved to the CSV as a new line followed by a comma, followed by the label the user offered. Update the checkpoint marker file to indicate the readline position, and update the user's percentage progress through the file so they know how much farther they have to go.
 
         Could also just lop off the just-finished line in the .txc file to avoid the use of a checkpoint file altogether, but I'd prefer keeping the .txc file so the user can clobber the checkpoint file to restart it if they so chose.
+
+        To reduce the amount of actual changes written to disk, we'll write multiple rows in bulk to the .csv file, every ten decisions. They'll be passed to writer() in the format:
+        multi_rows = [
+            ['A positive sentence.', '1.0'],
+            ['A negative sentence.', '0.0']
+        ]
 
         :return:
         """
@@ -89,13 +120,14 @@ class TextCleaningAndLabellingClient():
 
 def main():
     client = TextCleaningAndLabellingClient()
-    msg = [
+
+    multi_rows = [
         ['A positive sentence.', '1.0'],
         ['A negative sentence.', '0.0']
     ]
+    client.writer(multi_rows=multi_rows, filename='debugging.csv')
 
-    client.writer(multi_rows=msg, filename='debugging.csv')
-    #client.cleaner(filename='1512.07422.txt')
+    client.cleaner(filename='1512.07422.txt')
     client.logger.info('Done.')
 
 if __name__ == '__main__':
