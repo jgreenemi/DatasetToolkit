@@ -1,0 +1,6 @@
+.idea/
+target/
+
+# User-specific data directories.
+configs/*.json
+datasets/
