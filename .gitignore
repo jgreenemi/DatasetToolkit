@@ -1,4 +1,5 @@
 .idea/
+env/
 target/
 
 # User-specific data directories.
