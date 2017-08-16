@@ -1,7 +1,5 @@
 .idea/
-env/
+env
 target/
-
-# User-specific data directories.
 configs/*.json
 datasets/
