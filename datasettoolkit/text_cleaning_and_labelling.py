@@ -72,30 +72,50 @@ class TextCleaningAndLabellingClient():
         """
         return
 
-    def cleaner(self, filename):
+    def cleaner(self, filename, label=-1):
         """
         From the given text file, read text as stream ('cause these will be huge) and strip out unnecessary characters (including newlines and commas). For each segment of max_sentence_length, write to a .txc file.
 
         Could also just overwrite the original file but I dislike the idea of mutating the source data. This also makes it possible to set up checkpoints to stop and come back to if the labeler() takes a long time to finish.
 
+        :param filename: The name of the .txt file to read from.
+        :param label: An optional Integer value of which output_label to add to the data, indexed from 0. Making optional in case you want to create a dataset of live data for an algorithm, rather than a training or test set, or in case you'll invoke the labeler() function later.
         :return:
         """
         try:
+            # Create the output filename based on input filename.
             cleaned_text_filename = '{}.txc'.format(filename.split('.txt')[0])
+            full_input_filename = os.path.join(self.dataset_path, filename)
 
-            fullfilename = os.path.join(self.dataset_path, filename)
-            with open(fullfilename, 'rb') as raw_text_file:
+            with open(full_input_filename, 'rb') as raw_text_file:
                 # This is not scalable! Reads in whole file rather than piece by piece.
-                cleaned_text_fileraw = str(raw_text_file.read().splitlines()).split(' ')
+                # Use .read().splitlines() to cross newline boundaries.
+                cleaned_text_fileraw = ' '.join(raw_text_file.read().splitlines()).split(' ')
 
             while len(cleaned_text_fileraw) > self.max_sentence_length:
-                line = '{}\n'.format(str(cleaned_text_fileraw[:self.max_sentence_length]))
+                # Make line var out of the first max_sentence_length elements from the file, then delete them from the
+                # original collection to prepare for next iteration.
+                line = ' '.join(cleaned_text_fileraw[:self.max_sentence_length]).replace(',', '')
                 del cleaned_text_fileraw[:self.max_sentence_length]
-                with open(os.path.join(self.dataset_path, cleaned_text_filename), 'a') as cleaned_file:
-                    cleaned_file.write(line)
-                self.logger.info('Wrote: {}'.format(line))
 
-            self.logger.info('{} cleaned and written to {}.'.format(filename, cleaned_text_filename))
+                # Write to file.
+                if label == -1:
+                    with open(os.path.join(self.dataset_path, cleaned_text_filename), 'a') as cleaned_file:
+                        line += '\n'
+                        cleaned_file.writelines(line)
+                    self.logger.info('Wrote: {}'.format(line))
+
+                else:
+                    # If label wasn't -1, the user is expected to have passed in the index of the output label, so we'll
+                    # create an actual CSV out of it with our writer function.
+                    line += ' {}'.format(self.output_labels[label])
+
+                    with open(os.path.join(self.dataset_path, cleaned_text_filename), 'a') as cleaned_file:
+                        line += '\n'
+                        cleaned_file.write(line)
+                    self.logger.info('Label: {} Wrote: {}'.format(self.output_labels[label], line))
+
+            self.logger.info('{} cleaned and written to {}.'.format(filename, cleaned_text_filename))  # DEBUG
             return
 
         except Exception as e:
@@ -121,14 +141,15 @@ class TextCleaningAndLabellingClient():
 def main():
     client = TextCleaningAndLabellingClient()
 
-    multi_rows = [
-        ['A positive sentence.', '1.0'],
-        ['A negative sentence.', '0.0']
-    ]
-    client.writer(multi_rows=multi_rows, filename='debugging.csv')
+    # Testing the writer.
+    # multi_rows = [
+    #     ['A positive sentence.', '1.0'],
+    #     ['A negative sentence.', '0.0']
+    # ]
+    # client.writer(multi_rows=multi_rows, filename='debugging.csv')
 
-    client.cleaner(filename='text_from_papers.txt.example')
-    client.cleaner(filename='text_from_reddit.txt.example')
+    client.cleaner(filename='text_from_papers.txt.example')#, label=0)
+    #client.cleaner(filename='text_from_reddit.txt.example', label=1)
     client.logger.info('Done.')
 
 if __name__ == '__main__':
