@@ -118,8 +118,13 @@ class TextCleaningAndLabellingClient():
             while len(cleaned_text_fileraw) > self.max_sentence_length:
                 # Make line var out of the first max_sentence_length elements from the file, then delete them from the
                 # original collection to prepare for next iteration.
-                line = ' '.join(cleaned_text_fileraw[:self.max_sentence_length]).replace(',', '')
+                line = ' '.join(cleaned_text_fileraw[:self.max_sentence_length])
                 del cleaned_text_fileraw[:self.max_sentence_length]
+
+                # Transform the line for algorithmic consumption - removing commas, capital letters, etc.
+                line = line.replace(',', '')
+                line = line.lower()
+
 
                 # Write to file.
                 if label == -1:
