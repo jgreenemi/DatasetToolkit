@@ -151,7 +151,7 @@ class TextCleaningAndLabellingClient():
                 # if progress_percentage % 2 == 0:
                 #     self.logger.info('{}/{} words processed. ({}%)'.format(len(cleaned_text_fileraw), total_number_of_raw_words, progress_percentage))
 
-            self.logger.info('{} cleaned and written to disk.'.format(filename))  # DEBUG
+            self.logger.info('{} cleaned and written to disk.'.format(filename))
             return
 
         except Exception as e:
@@ -184,8 +184,8 @@ def main():
     # ]
     # client.writer(multi_rows=multi_rows, filename='debugging.csv')
 
-    client.cleaner(filename='text_from_papers.txt.example', label=0)
-    #client.cleaner(filename='text_from_reddit.txt.example', label=1)
+    client.cleaner(filename='text_from_papers.txt.example', label=1)
+    client.cleaner(filename='text_from_reddit.txt.example', label=0)
     client.logger.info('Done.')
 
 if __name__ == '__main__':
