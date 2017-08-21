@@ -3,6 +3,8 @@ import csv
 import json
 import logging
 import os
+import re
+import string
 from math import ceil
 from pprint import pprint
 
@@ -122,9 +124,8 @@ class TextCleaningAndLabellingClient():
                 del cleaned_text_fileraw[:self.max_sentence_length]
 
                 # Transform the line for algorithmic consumption - removing commas, capital letters, etc.
-                line = line.replace(',', '')
                 line = line.lower()
-
+                line = re.sub(r'[\W_]+', ' ', line)  # Remove non-alpha characters.
 
                 # Write to file.
                 if label == -1:
