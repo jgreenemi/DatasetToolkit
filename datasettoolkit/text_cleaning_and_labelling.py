@@ -3,6 +3,7 @@ import csv
 import json
 import logging
 import os
+from math import ceil
 from pprint import pprint
 
 
@@ -46,6 +47,28 @@ class TextCleaningAndLabellingClient():
         except Exception as e:
             self.logger.error(e)
 
+    def writer_single_row(self, single_row, filename):
+        """
+        Given a List, write as a new row to a CSV file. Basically the same thing as .writer() but for individual rows.
+        Expected to be comparatively inefficient since this will involve multiple file accesses rather than .writer()'s
+        single access to write all elements at once. Basically your harddrive IO becomes the limiting factor here.
+
+        Expected format is like the following:
+
+        single_row = [
+            'A sentence as the first element.', '1.0'
+        ]
+
+        :param single_row: List of strings to be written as columns in a CSV file.
+        :param filename: CSV file to write to.
+        :return:
+        """
+
+        with open(os.path.join(self.dataset_path, filename), 'ab+') as output_file:
+            wr = csv.writer(output_file, dialect='excel')
+            wr.writerow(single_row)
+        return
+
     def writer(self, multi_rows, filename):
         """
         Given a list of lists of strings,
@@ -83,14 +106,14 @@ class TextCleaningAndLabellingClient():
         :return:
         """
         try:
-            # Create the output filename based on input filename.
-            cleaned_text_filename = '{}.txc'.format(filename.split('.txt')[0])
+            # Determine the file path based on the self.dataset_path and the passed-in filename.
             full_input_filename = os.path.join(self.dataset_path, filename)
 
             with open(full_input_filename, 'rb') as raw_text_file:
                 # This is not scalable! Reads in whole file rather than piece by piece.
                 # Use .read().splitlines() to cross newline boundaries.
                 cleaned_text_fileraw = ' '.join(raw_text_file.read().splitlines()).split(' ')
+                total_number_of_raw_words = len(cleaned_text_fileraw)
 
             while len(cleaned_text_fileraw) > self.max_sentence_length:
                 # Make line var out of the first max_sentence_length elements from the file, then delete them from the
@@ -100,7 +123,10 @@ class TextCleaningAndLabellingClient():
 
                 # Write to file.
                 if label == -1:
-                    with open(os.path.join(self.dataset_path, cleaned_text_filename), 'a') as cleaned_file:
+                    # Create the output filename based on input filename.
+                    cleaned_text_filename = '{}.txc'.format(filename.split('.txt')[0])
+
+                    with open(os.path.join(self.dataset_path, cleaned_text_filename), 'a+') as cleaned_file:
                         line += '\n'
                         cleaned_file.writelines(line)
                     self.logger.info('Wrote: {}'.format(line))
@@ -108,14 +134,24 @@ class TextCleaningAndLabellingClient():
                 else:
                     # If label wasn't -1, the user is expected to have passed in the index of the output label, so we'll
                     # create an actual CSV out of it with our writer function.
-                    line += ' {}'.format(self.output_labels[label])
+                    line_list = [line, self.output_labels[label]]
 
-                    with open(os.path.join(self.dataset_path, cleaned_text_filename), 'a') as cleaned_file:
-                        line += '\n'
-                        cleaned_file.write(line)
-                    self.logger.info('Label: {} Wrote: {}'.format(self.output_labels[label], line))
+                    # Create the output filename based on input filename.
+                    cleaned_text_filename = '{}.csv'.format(filename.split('.txt')[0])
 
-            self.logger.info('{} cleaned and written to {}.'.format(filename, cleaned_text_filename))  # DEBUG
+                    self.writer_single_row(line_list, cleaned_text_filename)
+
+                    # DEBUG
+                    # self.logger.info('Label: {} Wrote: {}'.format(self.output_labels[label], line))
+
+                # Give the user some indication of how far we are through the processing - could be millions of lines
+                # left to go. This is not working correctly at the moment because of an apparent division problem, so
+                # I'll come back to this later.
+                # progress_percentage = ceil(100 - (len(cleaned_text_fileraw) / total_number_of_raw_words))
+                # if progress_percentage % 2 == 0:
+                #     self.logger.info('{}/{} words processed. ({}%)'.format(len(cleaned_text_fileraw), total_number_of_raw_words, progress_percentage))
+
+            self.logger.info('{} cleaned and written to disk.'.format(filename))  # DEBUG
             return
 
         except Exception as e:
@@ -148,7 +184,7 @@ def main():
     # ]
     # client.writer(multi_rows=multi_rows, filename='debugging.csv')
 
-    client.cleaner(filename='text_from_papers.txt.example')#, label=0)
+    client.cleaner(filename='text_from_papers.txt.example', label=0)
     #client.cleaner(filename='text_from_reddit.txt.example', label=1)
     client.logger.info('Done.')
 
