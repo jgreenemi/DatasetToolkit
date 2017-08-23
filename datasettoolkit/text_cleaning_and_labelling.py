@@ -135,7 +135,6 @@ class TextCleaningAndLabellingClient():
                     with open(os.path.join(self.dataset_path, cleaned_text_filename), 'a+') as cleaned_file:
                         line += '\n'
                         cleaned_file.writelines(line)
-                    self.logger.info('Wrote: {}'.format(line))
 
                 else:
                     # If label wasn't -1, the user is expected to have passed in the index of the output label, so we'll
@@ -190,8 +189,8 @@ def main():
     # ]
     # client.writer(multi_rows=multi_rows, filename='debugging.csv')
 
-    client.cleaner(filename='text_from_papers.txt.example', label=1)
-    client.cleaner(filename='text_from_reddit.txt.example', label=0)
+    client.cleaner(filename='text_from_papers.txt.example')
+    client.cleaner(filename='text_from_reddit.txt.example')
     client.logger.info('Done.')
 
 if __name__ == '__main__':
