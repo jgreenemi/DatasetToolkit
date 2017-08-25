@@ -11,19 +11,19 @@ class RedditReader():
     def __init__(self):
         """
         A class for handling both the retrieval of text data from the reddit website, and for passing that to files
-        per interactive user instruction. Use querystrings for limiting response, i.e. /r/bitcoin/new/.json?limit=1
+        per interactive user instruction. Use querystrings for limiting response, i.e. /r/subreddit/new/.json?limit=1
 
         """
 
-        self.subreddit_url = r'http://www.reddit.com/r/bitcoin/new/.json'
+        self.subreddit_url = r'http://www.reddit.com/r/learnmachinelearning/new/.json'
         self.headers = {
             'User-Agent': r'DSTK-RedditReader/0.1'
         }
         self.classes = {
-            '1': 'datasettoolkit/datasets/Exp01-reddit-bitcoin-faqs.txt',
-            '2': 'datasettoolkit/datasets/Exp01-reddit-bitcoin-nonfaqs.txt'
+            '1': 'datasettoolkit/datasets/Exp02-reddit-learnmachinelearning-faqs.txt',
+            '2': 'datasettoolkit/datasets/Exp02-reddit-learnmachinelearning-nonfaqs.txt'
         }
-        self.checkpoint_file = 'datasettoolkit/datasets/Exp01-checkpoint.txt'
+        self.checkpoint_file = 'datasettoolkit/datasets/Exp02-checkpoint.txt'
 
         if os.path.isfile(self.checkpoint_file):
             with open(self.checkpoint_file, 'r') as checkpoint:
