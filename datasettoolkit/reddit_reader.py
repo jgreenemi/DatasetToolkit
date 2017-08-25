@@ -42,7 +42,9 @@ class RedditReader():
                 post_counter += 1
                 if reddit_post['data']['is_self']:
                     # This is a self-post. Save the text, ommitting newlines.
-                    candidate_text = reddit_post['data']['selftext']
+                    candidate_text = '{} {}'.format(
+                        reddit_post['data']['title'],
+                        reddit_post['data']['selftext'])
                     candidate_text = candidate_text.replace('\n', ' ').replace('\r', '')
                     
                     # Can prompt the user now about which class this should be sent to.
@@ -62,12 +64,13 @@ class RedditReader():
         """
         try:
             # Present the class options to the user.
+            print('\n====\n{}\n====\n'.format(candidate_text))
             prompt_string = 'This text can be classified as one of the following, or 0 to skip: \n'
-            for key, value in self.classes:
+            for key, value in self.classes.iteritems():
                 prompt_string = '{}{} for {}\n'.format(prompt_string, key, value)
 
             print(prompt_string)
-            user_class_choice = input("Which class does this text belong to? \n>").toUpper()
+            user_class_choice = input("Which class does this text belong to? \n>")
 
             if user_class_choice != '0':
                 with open(self.classes['user_class_choice'], 'ab+') as outfile:
