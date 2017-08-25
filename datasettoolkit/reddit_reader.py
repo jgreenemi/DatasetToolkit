@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Reads reddit self-text posts and writes them to a file!
 
+import os
 import requests
 from pprint import pprint
 
@@ -22,8 +23,14 @@ class RedditReader():
             '1': 'datasettoolkit/datasets/Exp01-reddit-bitcoin-faqs.txt',
             '2': 'datasettoolkit/datasets/Exp01-reddit-bitcoin-nonfaqs.txt'
         }
+        self.checkpoint_file = 'datasettoolkit/datasets/Exp01-checkpoint.txt'
 
-        self.current_after = ''
+        if os.path.isfile(self.checkpoint_file):
+            with open(self.checkpoint_file, 'r') as checkpoint:
+                self.current_after = checkpoint.read()
+            print('Found a checkpoint file! Starting with after={}'.format(self.current_after))
+        else:
+            self.current_after = ''
 
         return
 
@@ -56,6 +63,11 @@ class RedditReader():
 
                 post_count += len(reddit_post_list)
                 self.current_after = reddit_response['after']
+
+                # Also save the self.current_after value to a checkpoint file to pick up from this point later if you
+                # leave and return to classify more posts.
+                with open(self.checkpoint_file, 'wb+') as checkpoint:
+                    checkpoint.write(self.current_after)
 
                 for reddit_post in reddit_post_list:
                     post_counter += 1
