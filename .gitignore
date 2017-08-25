@@ -3,7 +3,6 @@
 env/
 target/
 
-
 # User-specific dirs.
 /datasettoolkit/configs/*.json
 /datasettoolkit/datasets/*.txt
