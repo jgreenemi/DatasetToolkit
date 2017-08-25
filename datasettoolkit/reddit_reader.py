@@ -93,7 +93,8 @@ class RedditReader():
 
             if user_class_choice != '0':
                 outfile = open(self.classes[user_class_choice], 'ab+')
-                outfile.write(candidate_text)
+                # Don't forget that final newline character - that's how the cleaner knows to separate training examples!
+                outfile.write('{}\n'.format(candidate_text))
                 print('\nWrote to {}\n'.format(self.classes[user_class_choice]))
 
             return
