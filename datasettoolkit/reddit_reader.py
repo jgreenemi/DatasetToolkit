@@ -18,9 +18,11 @@ class RedditReader():
             'User-Agent': r'DSTK-RedditReader/0.1'
         }
         self.classes = {
-            '1': 'datasets/Exp01-reddit-bitcoin-faqs.txt',
-            '2': 'datasets/Exp01-reddit-bitcoin-nonfaqs.txt'
+            '1': 'datasettoolkit/datasets/Exp01-reddit-bitcoin-faqs.txt',
+            '2': 'datasettoolkit/datasets/Exp01-reddit-bitcoin-nonfaqs.txt'
         }
+
+        self.current_after = ''
 
         return
 
@@ -32,24 +34,40 @@ class RedditReader():
         """
 
         try:
-            reddit_response = requests.get(self.subreddit_url, headers=self.headers).json()['data']
-            reddit_post_list = reddit_response['children']
-
-            post_count = len(reddit_post_list)
+            post_count = 0
             post_counter = 0
 
-            for reddit_post in reddit_post_list:
-                post_counter += 1
-                if reddit_post['data']['is_self']:
-                    # This is a self-post. Save the text, ommitting newlines.
-                    candidate_text = '{} {}'.format(
-                        reddit_post['data']['title'],
-                        reddit_post['data']['selftext'])
-                    candidate_text = candidate_text.replace('\n', ' ').replace('\r', '')
-                    
-                    # Can prompt the user now about which class this should be sent to.
-                    self.prompt_and_write(candidate_text)
-                print('[{}/{} posts evaluated.]'.format(post_counter, post_count))
+            while post_counter < 1000:
+                if not self.current_after:
+                    reddit_response = requests.get(
+                        self.subreddit_url,
+                        headers=self.headers
+                    ).json()['data']
+                else:
+                    reddit_response = requests.get(
+                        '{}?after={}'.format(
+                            self.subreddit_url,
+                            self.current_after
+                        ),
+                        headers=self.headers
+                    ).json()['data']
+                reddit_post_list = reddit_response['children']
+
+                post_count += len(reddit_post_list)
+                self.current_after = reddit_response['after']
+
+                for reddit_post in reddit_post_list:
+                    post_counter += 1
+                    if reddit_post['data']['is_self']:
+                        # This is a self-post. Save the text, ommitting newlines.
+                        candidate_text = '{} {}'.format(
+                            reddit_post['data']['title'].encode('utf-8'),
+                            reddit_post['data']['selftext'].encode('utf-8'))
+                        candidate_text = candidate_text.replace('\n', ' ').replace('\r', '')
+
+                        # Can prompt the user now about which class this should be sent to.
+                        self.prompt_and_write(candidate_text)
+                    print('[{}/{} posts evaluated.]'.format(post_counter, post_count))
             return
 
         except Exception as e:
@@ -70,12 +88,12 @@ class RedditReader():
                 prompt_string = '{}{} for {}\n'.format(prompt_string, key, value)
 
             print(prompt_string)
-            user_class_choice = input("Which class does this text belong to? \n>")
+            user_class_choice = input("Which class does this text belong to? \n>").encode('utf-8')
 
             if user_class_choice != '0':
-                with open(self.classes['user_class_choice'], 'ab+') as outfile:
-                    outfile.write(candidate_text)
-                    print('\nWrote to {}\n'.format(self.classes['user_class_choice']))
+                outfile = open(self.classes[user_class_choice], 'ab+')
+                outfile.write(candidate_text)
+                print('\nWrote to {}\n'.format(self.classes[user_class_choice]))
 
             return
 
