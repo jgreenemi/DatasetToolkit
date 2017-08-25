@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Reads reddit self-text posts and writes them to a file!
 
 import requests
@@ -88,7 +89,7 @@ class RedditReader():
                 prompt_string = '{}{} for {}\n'.format(prompt_string, key, value)
 
             print(prompt_string)
-            user_class_choice = input("Which class does this text belong to? \n>").encode('utf-8')
+            user_class_choice = str(input("Which class does this text belong to? \n>"))
 
             if user_class_choice != '0':
                 outfile = open(self.classes[user_class_choice], 'ab+')
