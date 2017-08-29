@@ -19,7 +19,7 @@ class MultiRedditReader():
 
         self.subreddits = json.load(open('datasettoolkit/configs/subreddits.json'))
         self.subreddit_url_prefix = r'http://www.reddit.com/r/'
-        self.subreddit_url_suffix = r'/top/.json?limit=100'
+        self.subreddit_url_suffix = r'/new/.json?limit=100'
         self.headers = {
             'User-Agent': r'DSTK-MultiRedditReader/0.1'
         }
