@@ -8,6 +8,7 @@ target/
 /datasettoolkit/datasets/*.txt
 /datasettoolkit/datasets/*.txc
 /datasettoolkit/datasets/*.csv
+/datasettoolkit/checkpoints/*
 
 # Include all .example files for new user guidance.
 !*.example
