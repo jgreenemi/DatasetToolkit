@@ -5,6 +5,7 @@
 import json
 import os
 import requests
+import time
 from pprint import pprint
 
 
@@ -45,6 +46,9 @@ class MultiRedditReader():
                     print('Reading /r/{}.'.format(subreddit_name))
                     post_count = 0
                     post_counter = 0
+
+                    # Adhere to 100ms artificial delay to go easy on the Reddit API.
+                    time.sleep(0.1)
 
                     while post_counter < 1000:
                         # Build the target URL.
