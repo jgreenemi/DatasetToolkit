@@ -25,6 +25,7 @@ class MultiRedditReader():
         }
         self.checkpoint_filepath = 'datasettoolkit/checkpoints/'
         self.output_filepath = 'datasettoolkit/datasets/'
+        self.post_limit = 10000
         self.current_after = {}
 
         return
@@ -50,7 +51,7 @@ class MultiRedditReader():
                     # Adhere to 100ms artificial delay to go easy on the Reddit API.
                     time.sleep(0.1)
 
-                    while post_counter < 1000:
+                    while post_counter < self.post_limit:
                         # Build the target URL.
                         subreddit_url = '{}{}{}'.format(
                             self.subreddit_url_prefix,
