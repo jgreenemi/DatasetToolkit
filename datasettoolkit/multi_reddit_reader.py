@@ -20,7 +20,7 @@ class MultiRedditReader:
 
         self.subreddits = config_contents['subreddit_labels']
         self.subreddit_url_prefix = r'http://www.reddit.com/r/'
-        self.subreddit_url_suffix = r'/new/.json?limit=100'
+        self.subreddit_url_suffix = r'/new/.json?limit=1000'
         self.headers = {
             'User-Agent': r'DSTK-MultiRedditReader/0.2'
         }
@@ -51,13 +51,20 @@ class MultiRedditReader:
         try:
             for category, values in self.subreddits.iteritems():
                 print('Now working on category "{}".'.format(category))
+
+                # If a file exists for this category, remove it, else we'll append to old data and possibly introduce
+                # duplicate entries, skewing our training results later on.
+                category_filepath = '{}{}.txt'.format(self.output_filepath, category)
+                if os.path.isfile(category_filepath):
+                    os.remove(category_filepath)
+
                 for subreddit_name in (self.subreddits[category]):
                     print('Reading /r/{}.'.format(subreddit_name))
                     post_count = 0
                     post_counter = 0
 
-                    # Adhere to 100ms artificial delay to go easy on the Reddit API.
-                    time.sleep(0.1)
+                    # Adhere to 10ms artificial delay to go easy on the Reddit API.
+                    time.sleep(0.01)
 
                     while post_counter < self.post_limit:
                         # Build the target URL.
@@ -73,10 +80,9 @@ class MultiRedditReader:
                             ).json()['data']
 
                         # This functionality is not yet set up for use with multiple checkpoint files. Though the work
-                        # would be trivial, this is a candidate for removal as it may be better to produce an
-                        # idempotent dataset of subreddit posts, rather than keep track of a certain chronology. This
-                        # will involve blanking each subreddit's file before getting started to avoid data duplication
-                        # from previous runs.
+                        # would be trivial, this is a candidate for removal we are already producing an idempotent
+                        # dataset of subreddit posts. Keeping track of chronology from previous runs should not be
+                        # necessary.
 
                         #if not self.current_after[subreddit_name]:
                         #    reddit_response = requests.get(
@@ -111,7 +117,7 @@ class MultiRedditReader:
                             candidate_text = candidate_text.replace('\n', ' ').replace('\r', '')
 
                             # Write to appropriate file.
-                            outfile = open('{}{}.txt'.format(self.output_filepath, category), 'ab+')
+                            outfile = open(category_filepath, 'ab+')
                             # Don't forget that final newline character - that's how the cleaner knows to separate training examples!
                             outfile.write('{}\n'.format(candidate_text))
 
