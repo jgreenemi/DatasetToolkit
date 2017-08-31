@@ -84,7 +84,7 @@ class MultiRedditReader:
                             ).json()['data']
                         else:
                             reddit_response = requests.get(
-                                '{}?after={}'.format(
+                                '{}&after={}'.format(
                                     subreddit_url,
                                     self.current_after
                                 ),
