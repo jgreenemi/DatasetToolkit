@@ -11,13 +11,16 @@ from shutil import copyfile
 
 
 class MultiRedditReader:
-    def __init__(self):
+    def __init__(self, stage='training'):
         """
         A class for handling both the retrieval of text data from the reddit website, and for passing that to files.
         Use querystrings for limiting response, i.e. /r/subreddit/new/.json?limit=100
 
+        :param stage: ['training', 'eval'] Choose one for setting aside what portion of your data is to be used for training purposes, and which is to be used as evaluation.
+        :type stage: str
         """
-        config_contents = json.load(open('datasettoolkit/configs/config.json'))
+        self.stage = stage
+        config_contents = json.load(open('datasettoolkit/configs/config.{}.json'.format(self.stage)))
 
         self.subreddits = config_contents['subreddit_labels']
         self.subreddit_url_prefix = r'http://www.reddit.com/r/'
@@ -27,7 +30,7 @@ class MultiRedditReader:
         }
         self.checkpoint_filepath = 'datasettoolkit/checkpoints/'
         self.output_filepath = 'datasettoolkit/datasets/'
-        self.post_limit = 10000
+        self.post_limit = 1000
         self.current_after = ''
 
         if 'destination_dir' in config_contents and config_contents['destination_dir']:
@@ -42,15 +45,13 @@ class MultiRedditReader:
 
         return
 
-    def read(self, noclobber=False, stage='training'):
+    def read(self, noclobber=False):
         """
         Go through each of the interest/avoid lists and read posts from each sub. Create a checkpoint file containing
         keys of "", "done", or a token for continuing. If none, assume it hasn't been done yet. If "done", skip it.
         Else, read token and continue where you left off, as well as checking the counter of how many posts we've
         already read in.
 
-        :param stage: ['training', 'eval'] Choose one for setting aside what portion of your data is to be used for training purposes, and which is to be used as evaluation.
-        :type stage: str
         :param noclobber: If set to True, will not remove existing output files, and will cause new lines to append.
         :type noclobber: bool
         :return:
@@ -62,7 +63,7 @@ class MultiRedditReader:
 
                 # If a file exists for this category, remove it, else we'll append to old data and possibly introduce
                 # duplicate entries, skewing our training results later on.
-                category_file = '{}{}-{}.txt'.format(self.output_filepath, stage, category)
+                category_file = '{}{}-{}.txt'.format(self.output_filepath, self.stage, category)
                 if not noclobber and os.path.isfile(category_file):
                     os.remove(category_file)
 
@@ -157,8 +158,10 @@ def main():
     Generally this is what invokes the actual reading from reddit.
     :return:
     """
-    reddit_client = MultiRedditReader()
-    reddit_client.read(noclobber=False, stage='training')
+    reddit_client = MultiRedditReader(stage='training')
+    reddit_client.read(noclobber=False)
+    reddit_client = MultiRedditReader(stage='eval')
+    reddit_client.read(noclobber=False)
     return
 
 if __name__ == '__main__':
