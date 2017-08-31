@@ -1,0 +1,26 @@
+{
+  "interest": [
+    "machinelearning",
+    "learnmachinelearning",
+    "teslamotors",
+    "spacex",
+    "elonmusk",
+    "xkcd",
+    "kerbalspaceprogram",
+    "philosophy",
+    "scala",
+    "vexillology"
+  ],
+  "avoid": [
+    "aww",
+    "funny",
+    "pics",
+    "cringe",
+    "news",
+    "politics",
+    "dankmemes",
+    "instant_regret",
+    "oddlysatisfying",
+    "iamverysmart"
+  ]
+}
