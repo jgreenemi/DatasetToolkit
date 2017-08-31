@@ -1,6 +1,6 @@
 {
   "destination_dir": "/home/ubuntu/cnn-text-classification-tf/data/tpp-data/",
-  "subreddits": {
+  "subreddit_labels": {
     "interest": [
       "machinelearning",
       "learnmachinelearning",

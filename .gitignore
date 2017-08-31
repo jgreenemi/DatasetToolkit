@@ -10,5 +10,6 @@ target/
 /datasettoolkit/datasets/*.csv
 /datasettoolkit/checkpoints/*
 
-# Include all .example files for new user guidance.
+# Include all .example files for new user guidance, and .gitkeeps for directory structure.
 !*.example
+!.gitkeep
