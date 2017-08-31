@@ -20,21 +20,23 @@ class MultiRedditReader:
 
         self.subreddits = config_contents['subreddit_labels']
         self.subreddit_url_prefix = r'http://www.reddit.com/r/'
-        self.subreddit_url_suffix = r'/new/.json?limit=1000'
+        self.subreddit_url_suffix = r'/new/.json?limit=100'
         self.headers = {
             'User-Agent': r'DSTK-MultiRedditReader/0.2'
         }
         self.checkpoint_filepath = 'datasettoolkit/checkpoints/'
         self.output_filepath = 'datasettoolkit/datasets/'
         self.post_limit = 10000
-        self.current_after = {}
+        self.current_after = ''
 
         if 'destination_dir' in config_contents and config_contents['destination_dir']:
             # If the destination dir is present and not empty, let the function copy the new datasets to the
             # specified directory upon finishing. Absolute path recommended over relative path due to potential
             # filesystem scope issues.
             self.destination_dir = config_contents['destination_dir']
-            print('Upon completion of script, new datasets will be copied to ', self.destination_dir)
+            print('Upon completion of script, new datasets will be copied to: \n{}'.format(self.destination_dir))
+        else:
+            print('No destination_dir value configured in config.json, will not copy files from local dir /datasets/.')
 
         return
 
@@ -62,6 +64,7 @@ class MultiRedditReader:
                     print('Reading /r/{}.'.format(subreddit_name))
                     post_count = 0
                     post_counter = 0
+                    self.current_after = ''
 
                     # Adhere to 10ms artificial delay to go easy on the Reddit API.
                     time.sleep(0.01)
@@ -74,38 +77,30 @@ class MultiRedditReader:
                             self.subreddit_url_suffix
                         )
 
-                        reddit_response = requests.get(
+                        if not self.current_after:
+                            reddit_response = requests.get(
                                 subreddit_url,
                                 headers=self.headers
                             ).json()['data']
-
-                        # This functionality is not yet set up for use with multiple checkpoint files. Though the work
-                        # would be trivial, this is a candidate for removal we are already producing an idempotent
-                        # dataset of subreddit posts. Keeping track of chronology from previous runs should not be
-                        # necessary.
-
-                        #if not self.current_after[subreddit_name]:
-                        #    reddit_response = requests.get(
-                        #        subreddit_url,
-                        #        headers=self.headers
-                        #    ).json()['data']
-                        #else:
-                        #    reddit_response = requests.get(
-                        #        '{}?after={}'.format(
-                        #            subreddit_url,
-                        #            self.current_after
-                        #        ),
-                        #        headers=self.headers
-                        #    ).json()['data']
+                        else:
+                            reddit_response = requests.get(
+                                '{}?after={}'.format(
+                                    subreddit_url,
+                                    self.current_after
+                                ),
+                                headers=self.headers
+                            ).json()['data']
 
                         reddit_post_list = reddit_response['children']
                         post_count += len(reddit_post_list)
-                        self.current_after[subreddit_name] = reddit_response['after']
+                        self.current_after = reddit_response['after']
 
-                        # Also save the self.current_after value to a checkpoint file to pick up from this point later if
+                        # Save the self.current_after value to a checkpoint file to pick up from this point later if
                         # you leave and return to classify more posts.
-                        with open('{}{}'.format(self.checkpoint_filepath, subreddit_name), 'wb+') as checkpoint:
-                            json.dump(self.current_after, checkpoint)
+                        # This is a candidate for deletion as new executions of the script will start from the latest
+                        # posts and work backward - no need to maintain chronology across multiple executions.
+                        #with open('{}{}'.format(self.checkpoint_filepath, subreddit_name), 'wb+') as checkpoint:
+                        #    json.dump(self.current_after, checkpoint)
 
                         for reddit_post in reddit_post_list:
                             post_counter += 1
