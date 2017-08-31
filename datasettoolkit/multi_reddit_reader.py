@@ -7,6 +7,7 @@ import os
 import requests
 import time
 from pprint import pprint
+from shutil import copyfile
 
 
 class MultiRedditReader:
@@ -36,6 +37,7 @@ class MultiRedditReader:
             self.destination_dir = config_contents['destination_dir']
             print('Upon completion of script, new datasets will be copied to: \n{}'.format(self.destination_dir))
         else:
+            self.destination_dir = None
             print('No destination_dir value configured in config.json, will not copy files from local dir /datasets/.')
 
         return
@@ -56,9 +58,9 @@ class MultiRedditReader:
 
                 # If a file exists for this category, remove it, else we'll append to old data and possibly introduce
                 # duplicate entries, skewing our training results later on.
-                category_filepath = '{}{}.txt'.format(self.output_filepath, category)
-                if os.path.isfile(category_filepath):
-                    os.remove(category_filepath)
+                category_file = '{}{}.txt'.format(self.output_filepath, category)
+                if os.path.isfile(category_file):
+                    os.remove(category_file)
 
                 for subreddit_name in (self.subreddits[category]):
                     print('Reading /r/{}.'.format(subreddit_name))
@@ -66,8 +68,8 @@ class MultiRedditReader:
                     post_counter = 0
                     self.current_after = ''
 
-                    # Adhere to 10ms artificial delay to go easy on the Reddit API.
-                    time.sleep(0.01)
+                    # Adhere to 50ms artificial delay to go easy on the Reddit API.
+                    time.sleep(0.05)
 
                     while post_counter < self.post_limit:
                         # Build the target URL.
@@ -112,11 +114,20 @@ class MultiRedditReader:
                             candidate_text = candidate_text.replace('\n', ' ').replace('\r', '')
 
                             # Write to appropriate file.
-                            outfile = open(category_filepath, 'ab+')
+                            outfile = open(category_file, 'ab+')
                             # Don't forget that final newline character - that's how the cleaner knows to separate training examples!
                             outfile.write('{}\n'.format(candidate_text))
 
                             print('[{}/{} posts from /r/{} classed as "{}".]'.format(post_counter, post_count, subreddit_name, category))
+
+                # If a destination_dir has been set, copy the files over. Also, yes, I have category_file defined above
+                # and could use it here as the source file, but look how nice the code looks when laid out like this!
+                if self.destination_dir:
+                    copyfile_result = copyfile(
+                        '{}{}.txt'.format(self.output_filepath, category),
+                        '{}{}.txt'.format(self.destination_dir, category)
+                    )
+
             return
 
         except Exception as e:
