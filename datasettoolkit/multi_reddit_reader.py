@@ -30,7 +30,7 @@ class MultiRedditReader:
         }
         self.checkpoint_filepath = 'datasettoolkit/checkpoints/'
         self.output_filepath = 'datasettoolkit/datasets/'
-        self.post_limit = 1000
+        self.post_limit = 10000
         self.current_after = ''
 
         if 'destination_dir' in config_contents and config_contents['destination_dir']:
