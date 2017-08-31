@@ -33,7 +33,7 @@ class TextCleaningAndLabellingClient():
             # Load config and populate instance vars.
             self.configs_path = os.path.join('datasettoolkit', 'configs')
             self.dataset_path = os.path.join('datasettoolkit', 'datasets')
-            config_data = json.loads(open(os.path.join(self.configs_path, 'config.json')).read())
+            config_data = json.loads(open(os.path.join(self.configs_path, 'singleconfig.json')).read())
 
             self.max_sentence_length = config_data['max_sentence_length']
             self.output_labels = []

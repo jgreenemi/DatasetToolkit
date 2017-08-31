@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Reads reddit self-text posts and writes them to a file!
+# Reads thousands of a subreddit's posts and writes them to files!
 
 import json
 import os
@@ -9,24 +9,32 @@ import time
 from pprint import pprint
 
 
-class MultiRedditReader():
+class MultiRedditReader:
     def __init__(self):
         """
         A class for handling both the retrieval of text data from the reddit website, and for passing that to files.
         Use querystrings for limiting response, i.e. /r/subreddit/new/.json?limit=100
 
         """
+        config_contents = json.load(open('datasettoolkit/configs/config.json'))
 
-        self.subreddits = json.load(open('datasettoolkit/configs/subreddits.json'))
+        self.subreddits = config_contents['subreddit_labels']
         self.subreddit_url_prefix = r'http://www.reddit.com/r/'
         self.subreddit_url_suffix = r'/new/.json?limit=100'
         self.headers = {
-            'User-Agent': r'DSTK-MultiRedditReader/0.1'
+            'User-Agent': r'DSTK-MultiRedditReader/0.2'
         }
         self.checkpoint_filepath = 'datasettoolkit/checkpoints/'
         self.output_filepath = 'datasettoolkit/datasets/'
         self.post_limit = 10000
         self.current_after = {}
+
+        if 'destination_dir' in config_contents and config_contents['destination_dir']:
+            # If the destination dir is present and not empty, let the function copy the new datasets to the
+            # specified directory upon finishing. Absolute path recommended over relative path due to potential
+            # filesystem scope issues.
+            self.destination_dir = config_contents['destination_dir']
+            print('Upon completion of script, new datasets will be copied to ', self.destination_dir)
 
         return
 
@@ -64,12 +72,17 @@ class MultiRedditReader():
                                 headers=self.headers
                             ).json()['data']
 
+                        # This functionality is not yet set up for use with multiple checkpoint files. Though the work
+                        # would be trivial, this is a candidate for removal as it may be better to produce an
+                        # idempotent dataset of subreddit posts, rather than keep track of a certain chronology. This
+                        # will involve blanking each subreddit's file before getting started to avoid data duplication
+                        # from previous runs.
+
                         #if not self.current_after[subreddit_name]:
                         #    reddit_response = requests.get(
                         #        subreddit_url,
                         #        headers=self.headers
                         #    ).json()['data']
-
                         #else:
                         #    reddit_response = requests.get(
                         #        '{}?after={}'.format(

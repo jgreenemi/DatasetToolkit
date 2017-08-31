@@ -1,7 +1,29 @@
 {
-  "max_sentence_length": 30,
-  "output_labels": [
-    "Reddit comment",
-    "Not a Reddit comment"
-  ]
+  "destination_dir": "/home/ubuntu/cnn-text-classification-tf/data/tpp-data/",
+  "subreddits": {
+    "interest": [
+      "machinelearning",
+      "learnmachinelearning",
+      "teslamotors",
+      "spacex",
+      "elonmusk",
+      "xkcd",
+      "kerbalspaceprogram",
+      "philosophy",
+      "scala",
+      "vexillology"
+    ],
+    "avoid": [
+      "aww",
+      "funny",
+      "pics",
+      "cringe",
+      "news",
+      "politics",
+      "dankmemes",
+      "instant_regret",
+      "oddlysatisfying",
+      "iamverysmart"
+    ]
+  }
 }
