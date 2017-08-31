@@ -64,7 +64,7 @@ class MultiRedditReader:
                 # If a file exists for this category, remove it, else we'll append to old data and possibly introduce
                 # duplicate entries, skewing our training results later on.
                 category_filename = '{}-{}.txt'.format(self.stage, category)
-                category_filepath = '{}{}'.format(category_filename, category)
+                category_filepath = '{}{}'.format(self.output_filepath, category_filename)
                 if not noclobber and os.path.isfile(category_filepath):
                     os.remove(category_filepath)
 
