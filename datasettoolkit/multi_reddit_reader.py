@@ -42,13 +42,17 @@ class MultiRedditReader:
 
         return
 
-    def read(self):
+    def read(self, noclobber=False, stage='training'):
         """
         Go through each of the interest/avoid lists and read posts from each sub. Create a checkpoint file containing
         keys of "", "done", or a token for continuing. If none, assume it hasn't been done yet. If "done", skip it.
         Else, read token and continue where you left off, as well as checking the counter of how many posts we've
         already read in.
 
+        :param stage: ['training', 'eval'] Choose one for setting aside what portion of your data is to be used for training purposes, and which is to be used as evaluation.
+        :type stage: str
+        :param noclobber: If set to True, will not remove existing output files, and will cause new lines to append.
+        :type noclobber: bool
         :return:
         """
 
@@ -58,8 +62,8 @@ class MultiRedditReader:
 
                 # If a file exists for this category, remove it, else we'll append to old data and possibly introduce
                 # duplicate entries, skewing our training results later on.
-                category_file = '{}{}.txt'.format(self.output_filepath, category)
-                if os.path.isfile(category_file):
+                category_file = '{}{}-{}.txt'.format(self.output_filepath, stage, category)
+                if not noclobber and os.path.isfile(category_file):
                     os.remove(category_file)
 
                 for subreddit_name in (self.subreddits[category]):
@@ -129,13 +133,12 @@ class MultiRedditReader:
 
                 print('Dataset retrieval for category "{}" is finished.'.format(category))
 
-                # If a destination_dir has been set, copy the files over. Also, yes, I have category_file defined above
-                # and could use it here as the source file, but look how nice the code looks when laid out like this!
+                # If a destination_dir has been set, copy the files over.
                 if self.destination_dir:
                     print('Destination directory set - copying "{}" category file.'.format(category))
                     copyfile_result = copyfile(
-                        '{}{}.txt'.format(self.output_filepath, category),
-                        '{}{}.txt'.format(self.destination_dir, category)
+                        category_file,
+                        self.destination_dir
                     )
 
             return
@@ -155,7 +158,7 @@ def main():
     :return:
     """
     reddit_client = MultiRedditReader()
-    reddit_client.read()
+    reddit_client.read(noclobber=False, stage='training')
     return
 
 if __name__ == '__main__':
