@@ -118,7 +118,14 @@ class MultiRedditReader:
                             # Don't forget that final newline character - that's how the cleaner knows to separate training examples!
                             outfile.write('{}\n'.format(candidate_text))
 
-                            print('[{}/{} posts from /r/{} classed as "{}".]'.format(post_counter, post_count, subreddit_name, category))
+                            if post_counter % 100 == 0:
+                                # Only print this every 100 iters. Reduces time spent writing to buffer.
+                                print('[{}/{} posts from /r/{} classed as "{}".]'.format(
+                                    post_counter,
+                                    self.post_limit,
+                                    subreddit_name,
+                                    category)
+                                )
 
                 print('Dataset retrieval for category "{}" is finished.'.format(category))
 
