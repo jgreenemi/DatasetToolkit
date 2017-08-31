@@ -63,9 +63,10 @@ class MultiRedditReader:
 
                 # If a file exists for this category, remove it, else we'll append to old data and possibly introduce
                 # duplicate entries, skewing our training results later on.
-                category_file = '{}{}-{}.txt'.format(self.output_filepath, self.stage, category)
-                if not noclobber and os.path.isfile(category_file):
-                    os.remove(category_file)
+                category_filename = '{}-{}.txt'.format(self.stage, category)
+                category_filepath = '{}{}'.format(category_filename, category)
+                if not noclobber and os.path.isfile(category_filepath):
+                    os.remove(category_filepath)
 
                 for subreddit_name in (self.subreddits[category]):
                     print('Reading /r/{}.'.format(subreddit_name))
@@ -119,7 +120,7 @@ class MultiRedditReader:
                             candidate_text = candidate_text.replace('\n', ' ').replace('\r', '')
 
                             # Write to appropriate file.
-                            outfile = open(category_file, 'ab+')
+                            outfile = open(category_filepath, 'ab+')
                             # Don't forget that final newline character - that's how the cleaner knows to separate training examples!
                             outfile.write('{}\n'.format(candidate_text))
 
@@ -138,8 +139,8 @@ class MultiRedditReader:
                 if self.destination_dir:
                     print('Destination directory set - copying "{}" category file.'.format(category))
                     copyfile_result = copyfile(
-                        category_file,
-                        self.destination_dir
+                        category_filepath,
+                        '{}{}'.format(self.destination_dir, category_filename)
                     )
 
             return
