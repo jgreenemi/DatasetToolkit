@@ -120,9 +120,12 @@ class MultiRedditReader:
 
                             print('[{}/{} posts from /r/{} classed as "{}".]'.format(post_counter, post_count, subreddit_name, category))
 
+                print('Dataset retrieval for category "{}" is finished.'.format(category))
+
                 # If a destination_dir has been set, copy the files over. Also, yes, I have category_file defined above
                 # and could use it here as the source file, but look how nice the code looks when laid out like this!
                 if self.destination_dir:
+                    print('Destination directory set - copying "{}" category file.'.format(category))
                     copyfile_result = copyfile(
                         '{}{}.txt'.format(self.output_filepath, category),
                         '{}{}.txt'.format(self.destination_dir, category)
