@@ -14,16 +14,16 @@
       "OpenAI"
     ],
     "avoid": [
-      "todayilearned",
-      "nottheonion",
-      "art",
-      "oldschoolcool",
-      "indianpeoplefacebook",
+      "adviceanimals",
+      "politics",
+      "interestingasfuck",
       "woahdude",
-      "gifs",
-      "crappydesign",
-      "upliftingnews",
-      "mildlyinteresting"
+      "gameofthrones",
+      "leagueoflegends",
+      "pcmasterrace",
+      "blackpeopletwitter",
+      "reactiongifs",
+      "trees"
     ]
   }
 }
