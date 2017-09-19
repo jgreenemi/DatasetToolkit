@@ -2,16 +2,18 @@
   "destination_dir": "/home/ubuntu/cnn-text-classification-tf/data/tpp-data/",
   "subreddit_labels": {
     "interest": [
-      "mechanical_gifs",
-      "infographics",
-      "dataisbeautiful",
+      "compsci",
+      "technology",
+      "webhosting",
       "askscience",
-      "networking",
+      "javascript",
       "netsec",
       "bitcoin",
-      "bitcoinmarkets",
-      "BlueOrigin",
-      "OpenAI"
+      "java",
+      "elonmusk",
+      "coding",
+      "opensource",
+      "learnwebdev"
     ],
     "avoid": [
       "adviceanimals",
