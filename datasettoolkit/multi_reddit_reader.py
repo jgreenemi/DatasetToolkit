@@ -41,7 +41,7 @@ class MultiRedditReader:
             print('Upon completion of script, new datasets will be copied to: \n{}'.format(self.destination_dir))
         else:
             self.destination_dir = None
-            print('No destination_dir value configured in config.json, will not copy files from local dir /datasets/.')
+            print('No destination_dir value configured in config.*.json, will not copy files from local dir /datasets/.')
 
         return
 

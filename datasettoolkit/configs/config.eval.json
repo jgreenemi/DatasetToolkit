@@ -1,5 +1,5 @@
 {
-  "destination_dir": "/home/ubuntu/cnn-text-classification-tf/data/tpp-data/",
+  "destination_dir": "/home/ubuntu/workspaces/cnn-text-classification-tf/data/tpp-data/",
   "subreddit_labels": {
     "interest": [
       "compsci",
