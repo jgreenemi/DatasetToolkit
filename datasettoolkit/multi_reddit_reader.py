@@ -11,7 +11,7 @@ from shutil import copyfile
 
 
 class MultiRedditReader:
-    def __init__(self, stage='training'):
+    def __init__(self, posts, stage='training'):
         """
         A class for handling both the retrieval of text data from the reddit website, and for passing that to files.
         Use querystrings for limiting response, i.e. /r/subreddit/new/.json?limit=100
@@ -30,7 +30,7 @@ class MultiRedditReader:
         }
         self.checkpoint_filepath = 'datasettoolkit/checkpoints/'
         self.output_filepath = 'datasettoolkit/datasets/'
-        self.post_limit = 10000
+        self.post_limit = posts
         self.current_after = ''
 
         if 'destination_dir' in config_contents and config_contents['destination_dir']:
@@ -159,9 +159,23 @@ def main():
     Generally this is what invokes the actual reading from reddit.
     :return:
     """
-    reddit_client = MultiRedditReader(stage='training')
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Retrieve thousands of reddit posts and write them to files!')
+    parser.add_argument(
+        '--posts',
+        type=int,
+        action='store',
+        default=10000,
+        help='The number of posts to retrieve for each subreddit. (default: 10000)'
+    )
+
+    flags = parser.parse_args()
+    print('Will retrieve {} posts per subreddit.'.format(flags.posts))
+
+    reddit_client = MultiRedditReader(stage='training', posts=flags.posts)
     reddit_client.read(noclobber=False)
-    reddit_client = MultiRedditReader(stage='eval')
+    reddit_client = MultiRedditReader(stage='eval', posts=flags.posts)
     reddit_client.read(noclobber=False)
     return
 
